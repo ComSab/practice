@@ -4,25 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editable Table with Click Limitation</title>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet"> <!-- Include Amiri font -->
+    <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif; /* Default font for the rest of the document */
+            font-family: Arial, sans-serif;
         }
         .instruction {
-            width: 80%; /* Match the table width for consistency */
-            margin: 20px auto; /* Center the instruction text */
-            padding: 10px; /* Add some padding */
-            text-align: right; /* Align text to the right for RTL */
-            background-color: #f9f9f9; /* Light background color for visibility */
-            border: 1px solid #ccc; /* Add a border */
-            border-radius: 5px; /* Slightly rounded corners */
-            font-family: 'Amiri', serif; /* Apply Amiri font */
-            direction: rtl; /* Set text direction to right-to-left */
-            font-size: 20px; /* Increase font size to 16 pixels */
+            width: 80%;
+            margin: 20px auto;
+            padding: 10px;
+            text-align: right;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: 'Amiri', serif;
+            direction: rtl;
+            font-size: 20px;
         }
         table {
-            width: 80%; /* Adjusted for better visibility */
+            width: 80%;
             border-collapse: collapse;
             margin: 20px auto;
         }
@@ -30,20 +30,37 @@
             border: 1px solid #ccc;
             padding: 10px;
             text-align: center;
-            height: 60px; /* Set a fixed height for all cells */
+            height: 60px;
         }
         td[contenteditable="true"]:hover {
             background-color: #f0f0f0;
         }
-        /* Set equal widths for columns B and C */
         td:nth-child(2), td:nth-child(3) {
-            width: 40%; /* Both columns will have the same width */
+            width: 30%;
         }
-        /* Disable text selection for B5 and B6 */
+        /* Set width of Check column to 50px */
+        td:nth-child(4), th:nth-child(4) {
+            width: 50px;
+        }
         #b5, #b6 {
-            user-select: none; /* Prevent text selection */
-            pointer-events: none; /* Disable mouse events (click and drag) */
-            background-color: #e9ecef; /* Change background color to indicate it's disabled */
+            user-select: none;
+            pointer-events: none;
+            background-color: #e9ecef;
+        }
+        .green-tick {
+            color: green;
+            font-size: 20px;
+        }
+        /* Style for the additional text */
+        .footer-text {
+            text-align: center;
+            margin: 20px auto;
+            font-family: Arial, sans-serif;
+        }
+        .footer-text p {
+            margin: 5px 0;
+            font-weight: bold; /* Makes the text bold */
+            color: red;        /* Makes the text red */
         }
     </style>
 </head>
@@ -59,6 +76,7 @@
             <th>Keyboard Shortcuts</th>
             <th>Copy or Cut</th>
             <th>Paste</th>
+            <th>Check</th>
         </tr>
     </thead>
     <tbody>
@@ -66,84 +84,83 @@
             <td contenteditable="true">Ctrl+C & Ctrl+V</td>
             <td contenteditable="true">Microsoft Word</td>
             <td contenteditable="true"></td>
+            <td contenteditable="true"></td>
         </tr>
         <tr>
             <td contenteditable="true">Ctrl+C & Ctrl+V</td>
             <td contenteditable="true">Microsoft Word is a word processing software used for creating, editing, and formatting documents.</td>
+            <td contenteditable="true"></td>
             <td contenteditable="true"></td>
         </tr>
         <tr>
             <td contenteditable="true">Ctrl+X & Ctrl+V</td>
             <td contenteditable="true" id="b3">Microsoft Word</td>
             <td contenteditable="true"></td>
+            <td contenteditable="true"></td>
         </tr>
         <tr>
             <td contenteditable="true">Ctrl+X & Ctrl+V</td>
             <td contenteditable="true" id="b4">Microsoft Word is a word processing software used for creating, editing, and formatting documents.</td>
+            <td contenteditable="true"></td>
             <td contenteditable="true"></td>
         </tr>
         <tr>
             <td contenteditable="true">Ctrl+A & Ctrl+C & Ctrl+V</td>
             <td contenteditable="true" id="b5">It offers various features like templates, spell check, and collaboration tools to enhance document creation.</td>
             <td contenteditable="true"></td>
+            <td contenteditable="true"></td>
         </tr>
         <tr>
             <td contenteditable="true">Ctrl+A & Ctrl+X & Ctrl+V</td>
             <td contenteditable="true" id="b6">It offers various features like templates, spell check, and collaboration tools to enhance document creation.</td>
             <td contenteditable="true"></td>
+            <td contenteditable="true"></td>
         </tr>
     </tbody>
 </table>
 
+<!-- Additional text below the table -->
+<div class="footer-text">
+    <p>Computer Skills Lab</p>
+    <p>University of Nizwa</p>
+    <p>Mohammad Motaghianfar</p>
+</div>
+
 <script>
-    let lastClickTime = 0; // Variable to track the time of the last click
-    const clickDelay = 1000; // 1000 milliseconds = 1 second
+    let lastClickTime = 0;
+    const clickDelay = 1000;
 
     document.addEventListener('click', function(event) {
         const target = event.target;
-
-        // Check if the clicked element is contenteditable
         if (target.isContentEditable) {
-            const currentTime = Date.now(); // Get the current time
-
-            // Check if the time since the last click is less than the allowed delay
+            const currentTime = Date.now();
             if (currentTime - lastClickTime < clickDelay) {
-                event.preventDefault(); // Prevent the click action
-                return; // Exit the function early
+                event.preventDefault();
+                return;
             }
-
-            // Update the last click time
             lastClickTime = currentTime;
         }
     });
 
     document.addEventListener('keydown', function(event) {
-        // Check if Ctrl+X is pressed
         if (event.ctrlKey && event.key === 'x') {
             const focusedElement = document.activeElement;
-            // Check if the focused element is B3 or B4
             if (focusedElement.id === 'b3' || focusedElement.id === 'b4') {
-                // Cut the content
                 const cutContent = focusedElement.innerText;
-                // Clear the content in the cell
                 focusedElement.innerText = '';
-                // Copy the cut content to the clipboard
                 navigator.clipboard.writeText(cutContent).then(() => {
                     console.log('Cut content copied to clipboard:', cutContent);
                 }).catch(err => {
                     console.error('Could not copy text: ', err);
                 });
-                // Prevent the default cut action
                 event.preventDefault();
             }
         }
 
-        // Check if Ctrl+A is pressed
         if (event.ctrlKey && event.key === 'a') {
             const focusedElement = document.activeElement;
-            // Allow selection in B5 and B6
             if (focusedElement.id === 'b5' || focusedElement.id === 'b6') {
-                event.preventDefault(); // Prevent default action
+                event.preventDefault();
                 const range = document.createRange();
                 range.selectNodeContents(focusedElement);
                 const selection = window.getSelection();
@@ -153,7 +170,6 @@
         }
     });
 
-    // Disable double-click selection in B5 and B6
     document.getElementById('b5').addEventListener('dblclick', function(event) {
         event.preventDefault();
     });
@@ -161,10 +177,57 @@
         event.preventDefault();
     });
 
-    // Disable right-click context menu for the entire table
     document.querySelector('table').addEventListener('contextmenu', function(event) {
         event.preventDefault();
     });
+
+    // Function to update the "Check" column with green ticks
+    function updateCheckColumn() {
+        const rows = document.querySelectorAll('tbody tr');
+        const tick = '<span class="green-tick">✓</span>';
+
+        rows.forEach((row, index) => {
+            const shortcut = row.cells[0].innerText.trim();
+            const copyOrCut = row.cells[1].innerText.trim();
+            const paste = row.cells[2].innerText.trim();
+            const checkCell = row.cells[3];
+
+            let shouldTick = false;
+
+            switch (index) {
+                case 0: // First "Ctrl+C & Ctrl+V"
+                    shouldTick = copyOrCut === "Microsoft Word" && paste === "Microsoft Word";
+                    break;
+                case 1: // Second "Ctrl+C & Ctrl+V"
+                    shouldTick = copyOrCut === "Microsoft Word is a word processing software used for creating, editing, and formatting documents." &&
+                                 paste === "Microsoft Word is a word processing software used for creating, editing, and formatting documents.";
+                    break;
+                case 2: // First "Ctrl+X & Ctrl+V"
+                    shouldTick = paste === "Microsoft Word" && copyOrCut === "";
+                    break;
+                case 3: // Second "Ctrl+X & Ctrl+V"
+                    shouldTick = paste === "Microsoft Word is a word processing software used for creating, editing, and formatting documents." &&
+                                 copyOrCut === "";
+                    break;
+                case 4: // "Ctrl+A & Ctrl+C & Ctrl+V"
+                    shouldTick = copyOrCut === "It offers various features like templates, spell check, and collaboration tools to enhance document creation." &&
+                                 paste === "It offers various features like templates, spell check, and collaboration tools to enhance document creation.";
+                    break;
+                case 5: // "Ctrl+A & Ctrl+X & Ctrl+V"
+                    shouldTick = paste === "It offers various features like templates, spell check, and collaboration tools to enhance document creation." &&
+                                 copyOrCut === "";
+                    break;
+            }
+
+            checkCell.innerHTML = shouldTick ? tick : '';
+        });
+    }
+
+    // Update the "Check" column whenever content changes
+    document.querySelector('table').addEventListener('input', updateCheckColumn);
+
+    // Initial check
+    updateCheckColumn();
 </script>
 
 </body>
