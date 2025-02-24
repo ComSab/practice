@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drag and Drop Word Insert Game</title>
+    <!-- Link to Amiri font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+            vertical-align: middle;
+            width: 33.33%;
+        }
+        .arabic-column {
+            direction: rtl; /* Right-to-left for Arabic */
+            font-family: 'Amiri', serif; /* Apply Amiri font */
+            text-align: right; /* Align text to the right */
+        }
+        .drop-zone {
+            height: 100px;
+            background-color: #f0f0f0;
+            border: 2px dashed #666;
+            position: relative;
+        }
+        .drop-zone.dragover {
+            background-color: #e0e0e0;
+        }
+        .image-bank {
+            position: fixed;
+            top: 100px;
+            left: 20px;
+            width: 300px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 10px;
+            z-index: 1000;
+            max-height: 80vh;
+            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .image-bank img {
+            margin: 0;
+            cursor: move;
+        }
+        .tick {
+            color: green;
+            font-size: 24px;
+            display: none;
+        }
+        .cross {
+            color: red;
+            font-size: 24px;
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        body {
+            margin-left: 340px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Match the Pictures to Word Insert Options</h1>
+
+    <!-- Image Bank (Initially Empty) -->
+    <div class="image-bank" id="imageBank"></div>
+
+    <!-- Table -->
+    <table>
+        <thead>
+            <tr>
+                <th>Tool Usage</th>
+                <th>استخدام الأداة</th>
+                <th>Drop Zone</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <tr>
+                <td>Adds a pre-designed title page to your document, often with placeholders for a title, subtitle, and other details.</td>
+                <td class="arabic-column">يضيف صفحة عنوان مصممة مسبقًا إلى المستند، غالبًا مع حاملات للعنوان والعنوان الفرعي وتفاصيل أخرى.</td>
+                <td class="drop-zone" data-option="cover-page"><span class="tick">✔</span><span class="cross">✘</span></td>
+            </tr>
+            <tr>
+                <td>Inserts a completely empty page at the cursor’s location, pushing existing content to the next page.</td>
+                <td class="arabic-column">يدرج صفحة فارغة تمامًا في موقع المؤشر، مع دفع المحتوى الحالي إلى الصفحة التالية.</td>
+                <td class="drop-zone" data-option="blank-page"><span class="tick">✔</span><span class="cross">✘</span></td>
+            </tr>
+            <tr>
+                <td>Forces content after the cursor to start on a new page without adding a full blank page.</td>
+                <td class="arabic-column">يجبر المحتوى بعد المؤشر على البدء في صفحة جديدة دون إضافة صفحة فارغة كاملة.</td>
+                <td class="drop-zone" data-option="page-break"><span class="tick">✔</span><span class="cross">✘</span></td>
+            </tr>
+            <tr>
+                <td>Adds a customizable grid (rows and columns) for organizing data, with options to set the size.</td>
+                <td class="arabic-column">يضيف شبكة قابلة للتخصيص (صفوف وأعمدة) لتنظيم البيانات، مع خيارات لتحديد الحجم.</td>
+                <td class="drop-zone" data-option="insert-table"><span class="tick">✔</span><span class="cross">✘</span></td>
+            </tr>
+            <tr>
+                <td>Removes an existing table from the document (available when a table is selected).</td>
+                <td class="arabic-column">يزيل جدولًا موجودًا من المستند (متاح عند تحديد جدول).</td>
+                <td class="drop-zone" data-option="delete-table"><span class="tick">✔</span><span class="cross">✘</span></td>
+            </tr>
+            <tr>
+                <td>Lets you add images from your device into the document.</td>
+                <td class="arabic-column">يتيح لك إضافة صور من جهازك إلى المستند.</td>
+                <td class="drop-zone" data-option="pictures"><span class="tick">✔</span><span class="cross">✘</span></td>
+            </tr>
+            <tr>
+                <td>Inserts predefined shapes like arrows, circles, or lines that you can customize.</td>
+                <td class="arabic-column">يدرج أشكالًا محددة مسبقًا مثل الأسهم أو الدوائر أو الخطوط التي يمكن تخصيصها.</td>
+                <td class="drop-zone" data-option="shapes"><span class="tick">✔</span><span class="cross">✘</span></td>
+            </tr>
+            <tr>
+                <td>Adds simple, stylized graphics (like a star or checkmark) from a built-in library.</td>
+                <td class="arabic-column">يضيف رسومات بسيطة وأنيقة (مثل نجمة أو علامة صح) من مكتبة مدمجة.</td>
+                <td class="drop-zone" data-option="icons"><span class="tick">✔</span><span class="cross">✘</span></td>
+            </tr>
+            <tr>
+                <td>Inserts diagrams or graphics (e.g., flowcharts, hierarchies) to visually represent information.</td>
+                <td class="arabic-column">يدرج مخططات أو رسومات (مثل المخططات الانسيابية أو التسلسلات الهرمية) لتمثيل المعلومات بصريًا.</td>
+                <td class="drop-zone" data-option="smartart"><span class="tick">✔</span><span class="cross">✘</span></td>
+            </tr>
+            <tr>
+                <td>Adds a data-driven graph (e.g., bar, pie, line) that you can edit with values.</td>
+                <td class="arabic-column">يضيف رسمًا بيانيًا يعتمد على البيانات (مثل شريطي، دائري، خطي) يمكن تعديله بالقيم.</td>
+                <td class="drop-zone" data-option="chart"><span class="tick">✔</span><span class="cross">✘</span></td>
+            </tr>
+            <tr>
+                <td>Captures an image of an open window or screen area and inserts it into the document.</td>
+                <td class="arabic-column">يلتقط صورة لنافذة مفتوحة أو منطقة شاشة ويدرجها في المستند.</td>
+                <td class="drop-zone" data-option="screenshot"><span class="tick">✔</span><span class="cross">✘</span></td>
+            </tr>
+            <tr>
+                <td>Adds a repeatable section at the top of each page for text, like titles or logos.</td>
+                <td class="arabic-column">يضيف قسمًا متكررًا في أعلى كل صفحة للنصوص، مثل العناوين أو الشعارات.</td>
+                <td class="drop-zone" data-option="header"><span class="tick">✔</span><span class="cross">✘</span></td>
+            </tr>
+            <tr>
+                <td>Adds a repeatable section at the bottom of each page, often for page numbers or notes.</td>
+                <td class="arabic-column">يضيف قسمًا متكررًا في أسفل كل صفحة، غالبًا لأرقام الصفحات أو الملاحظات.</td>
+                <td class="drop-zone" data-option="footer"><span class="tick">✔</span><span class="cross">✘</span></td>
+            </tr>
+            <tr>
+                <td>Inserts automatic numbering for pages in the header, footer, or other locations.</td>
+                <td class="arabic-column">يدرج ترقيمًا تلقائيًا للصفحات في الرأس أو التذييل أو مواقع أخرى.</td>
+                <td class="drop-zone" data-option="page-number"><span class="tick">✔</span><span class="cross">✘</span></td>
+            </tr>
+            <tr>
+                <td>Creates a movable, resizable box for text that can be placed anywhere in the document.</td>
+                <td class="arabic-column">ينشئ مربعًا نصيًا متحركًا وقابلًا لتغيير الحجم يمكن وضعه في أي مكان في المستند.</td>
+                <td class="drop-zone" data-option="text-box"><span class="tick">✔</span><span class="cross">✘</span></td>
+            </tr>
+            <tr>
+                <td>Adds decorative, stylized text with effects like shadows or curves.</td>
+                <td class="arabic-column">يضيف نصًا مزخرفًا بتأثيرات مثل الظلال أو المنحنيات.</td>
+                <td class="drop-zone" data-option="wordart"><span class="tick">✔</span><span class="cross">✘</span></td>
+            </tr>
+            <tr>
+                <td>Inserts a mathematical formula or equation with a special editor for symbols and formatting.</td>
+                <td class="arabic-column">يدرج صيغة رياضية أو معادلة مع محرر خاص للرموز والتنسيق.</td>
+                <td class="drop-zone" data-option="equation"><span class="tick">✔</span><span class="cross">✘</span></td>
+            </tr>
+            <tr>
+                <td>Adds special characters (e.g., ©, ™, or Greek letters) not found on a standard keyboard.</td>
+                <td class="arabic-column">يضيف أحرفًا خاصة (مثل ©، ™، أو حروف يونانية) غير موجودة على لوحة المفاتيح القياسية.</td>
+                <td class="drop-zone" data-option="symbol"><span class="tick">✔</span><span class="cross">✘</span></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        // Array of image objects
+        const images = [
+            { src: 'cover_page.png', alt: 'Cover Page', option: 'cover-page' },
+            { src: 'blank_page.png', alt: 'Blank Page', option: 'blank-page' },
+            { src: 'page_break.png', alt: 'Page Break', option: 'page-break' },
+            { src: 'insert_table.png', alt: 'Insert Table', option: 'insert-table' },
+            { src: 'delete_table.png', alt: 'Delete Table', option: 'delete-table' },
+            { src: 'pictures.png', alt: 'Pictures', option: 'pictures' },
+            { src: 'shapes.png', alt: 'Shapes', option: 'shapes' },
+            { src: 'icons.png', alt: 'Icons', option: 'icons' },
+            { src: 'smartart.png', alt: 'SmartArt', option: 'smartart' },
+            { src: 'chart.png', alt: 'Chart', option: 'chart' },
+            { src: 'screenshot.png', alt: 'Screenshot', option: 'screenshot' },
+            { src: 'header.png', alt: 'Header', option: 'header' },
+            { src: 'footer.png', alt: 'Footer', option: 'footer' },
+            { src: 'page_number.png', alt: 'Page Number', option: 'page-number' },
+            { src: 'text_box.png', alt: 'Text Box', option: 'text-box' },
+            { src: 'wordart.png', alt: 'WordArt', option: 'wordart' },
+            { src: 'equation.png', alt: 'Equation', option: 'equation' },
+            { src: 'symbol.png', alt: 'Symbol', option: 'symbol' }
+        ];
+
+        // Fisher-Yates shuffle function
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Randomize and populate image bank
+        const imageBank = document.getElementById('imageBank');
+        const shuffledImages = shuffle([...images]);
+        shuffledImages.forEach(imgData => {
+            const img = document.createElement('img');
+            img.src = imgData.src;
+            img.alt = imgData.alt;
+            img.draggable = true;
+            img.dataset.option = imgData.option;
+            imageBank.appendChild(img);
+        });
+
+        // Randomize table rows
+        const tableBody = document.getElementById('tableBody');
+        const rows = Array.from(tableBody.getElementsByTagName('tr'));
+        const shuffledRows = shuffle(rows);
+        shuffledRows.forEach(row => tableBody.appendChild(row));
+
+        // Drag and Drop Logic
+        const draggables = document.querySelectorAll('[draggable="true"]');
+        const dropZones = document.querySelectorAll('.drop-zone');
+
+        draggables.forEach(draggable => {
+            draggable.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', draggable.dataset.option);
+            });
+        });
+
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('dragover');
+            });
+
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('dragover');
+            });
+
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('dragover');
+                const optionId = e.dataTransfer.getData('text/plain');
+                
+                if (optionId === zone.dataset.option) {
+                    const img = document.querySelector(`img[data-option="${optionId}"]`);
+                    zone.appendChild(img.cloneNode(true));
+                    zone.querySelector('.tick').style.display = 'inline';
+                } else {
+                    const cross = zone.querySelector('.cross');
+                    cross.style.display = 'inline';
+                    setTimeout(() => {
+                        cross.style.display = 'none';
+                    }, 1000); // Red cross disappears after 1 second
+                }
+            });
+        });
+    </script>
+</body>
+</html>
